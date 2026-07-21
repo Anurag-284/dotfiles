@@ -1,0 +1,29 @@
+/* 
+ * A simple, working powermenu theme.
+ */
+
+configuration {
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+* {
+    background-color:   #282A36;
+    text-color:         #F8F8F2;
+}
+
+window {
+    width:      200px;
+    padding:    16px;
+    border:     2px;
+    border-radius: 8px;
+    border-color: #44475A;
+}
+
+element {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+element selected {
+    background-color:   #44475A;
+}

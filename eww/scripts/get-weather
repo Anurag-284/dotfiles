@@ -1,0 +1,10 @@
+#!/bin/bash
+# You can replace "CityName" with your city
+weather=$(curl -s "wttr.in/CityName?format=j1")
+
+# Extract data using jq
+temp_c=$(echo "$weather" | jq -r '.current_condition[0].temp_C')
+weather_desc=$(echo "$weather" | jq -r '.current_condition[0].weatherDesc[0].value')
+
+# Output as JSON for eww
+echo "{\"temp\": \"$temp_c\", \"desc\": \"$weather_desc\"}"

@@ -1,0 +1,36 @@
+#!/bin/bash
+# Make sure you have playerctl installed: sudo pacman -S playerctl
+
+# The absolute path to your default album art
+DEFAULT_ART="/home/anurag/.config/eww/images/default-art.png"
+
+if ! playerctl status &> /dev/null; then
+    # When no player is running, provide default values and the default art
+    echo "{\"status\": \"Offline\", \"artist\": \"\", \"album\": \"\", \"title\": \"No Music Playing\", \"artUrl\": \"$DEFAULT_ART\"}"
+    exit
+fi
+
+STATUS=$(playerctl status)
+ARTIST=$(playerctl metadata artist)
+ALBUM=$(playerctl metadata album)
+TITLE=$(playerctl metadata title)
+ART_URL=$(playerctl metadata mpris:artUrl)
+
+# If ART_URL is empty or null, use the default art path.
+if [[ -z "$ART_URL" || "$ART_URL" == "null" ]]; then
+    FINAL_ART_URL="$DEFAULT_ART"
+else
+    FINAL_ART_URL="$ART_URL"
+fi
+
+# Truncate long text
+TITLE_SHORT=$(echo "$TITLE" | cut -c1-30)
+[[ ${#TITLE} -gt 30 ]] && TITLE_SHORT="$TITLE_SHORT..."
+
+echo '{
+    "status": "'"$STATUS"'",
+    "artist": "'"$ARTIST"'",
+    "album": "'"$ALBUM"'",
+    "title": "'"$TITLE_SHORT"'",
+    "artUrl": "'"$FINAL_ART_URL"'"
+}'

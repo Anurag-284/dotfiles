@@ -1,0 +1,7 @@
+#!/bin/bash
+EWW_WINDOW="dashboard_window"
+if eww active-windows | grep -q "$EWW_WINDOW"; then
+    eww close "$EWW_WINDOW"
+else
+    eww open "$EWW_WINDOW"
+fi

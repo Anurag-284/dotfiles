@@ -1,0 +1,35 @@
+#!/bin/bash
+
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+PYWAL_CACHE_DIR="$HOME/.cache/wal"
+POLYBAR_CONFIG_DIR="$HOME/.config/polybar"
+
+if [ ! -d "$WALLPAPER_DIR" ]; then
+  rofi -e "Wallpaper directory not found."
+  exit 1
+fi
+
+SELECTED_BASENAME=$(find "$WALLPAPER_DIR" -type f -iregex '.*\.\(jpg\|jpeg\|png\)' | sort | while read -r F; do echo "$(basename "$F")"; done | rofi -dmenu -i -p "󰸉 Select")
+
+if [ -n "$SELECTED_BASENAME" ]; then
+    FULL_PATH="$WALLPAPER_DIR/$SELECTED_BASENAME"
+
+    # 1. Set wallpaper and run pywal
+    feh --bg-scale "$FULL_PATH"
+    wal -q -i "$FULL_PATH"
+    
+    # 2. Update Polybar (Your original method)
+    cp -f "$PYWAL_CACHE_DIR/colors-polybar.ini" "$POLYBAR_CONFIG_DIR/colors.ini"
+    killall -q polybar
+    (sleep 0.2 && "$POLYBAR_CONFIG_DIR/launch.sh") &
+
+    # 3. Update Dunst
+    # Ensure dunstrc includes Pywal colors
+    if ! grep -q "include \"$PYWAL_CACHE_DIR/colors-dunst\"" "$DUNST_CONFIG"; then
+        echo -e "\ninclude \"$PYWAL_CACHE_DIR/colors-dunst\"" >> "$DUNST_CONFIG"
+    fi 	
+    
+    #    Kill the old dunst and start a new one
+    pkill dunst
+    dunst &
+fi

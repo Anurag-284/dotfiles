@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Path to your default cover art
+DEFAULT_COVER="home/anurag/Pictures/Wallpapers/animecity.jpg"
+
+# Get art URL from playerctl
+ART_URL=$(playerctl metadata mpris:artUrl 2>/dev/null)
+
+if [[ -n "$ART_URL" ]]; then
+    # Remove "file://" prefix and URL-decode the path
+    ART_PATH=$(echo "$ART_URL" | sed 's/^file:\/\///' | python3 -c "import urllib.parse, sys; print(urllib.parse.unquote(sys.stdin.read()))")
+    echo "$ART_PATH"
+else
+    echo "$DEFAULT_COVER"
+fi

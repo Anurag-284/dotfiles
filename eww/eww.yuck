@@ -1,0 +1,148 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Pollers for dynamic data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defpoll time_hour :interval "1s" "date +%H")
+(defpoll time_min :interval "1s" "date +%M")
+(defpoll date_str :interval "1h" "date +'%a, %d'")
+;; Corrected to ensure only a number is output
+(defpoll volume :interval "1s" "pamixer --get-volume | tr -d '%'")
+(defpoll weather :interval "10m" "~/.config/eww/scripts/get-weather")
+(defpoll uptime :interval "1m" "uptime -p | sed -e 's/up //'")
+(defpoll brightness_percent :interval "1s" "brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Widget Definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; --- Tabs ---
+(defwidget tabs []
+  (box :class "tabs-container" :halign "start" :spacing 40
+    (button :class "tab-button active" "󰕮 Dashboard")
+    (button :class "tab-button" "󰝚 Media")
+    (button :class "tab-button" "󰓅 Performance")
+    (button :class "tab-button" "󰀜 Workspaces")
+  )
+)
+
+;; --- Weather ---
+(defwidget weather_widget []
+  (box :class "widget-box weather-widget" :orientation "h" :space-evenly false :spacing 25 :valign "center"
+    (label :class "weather-icon" :text "")
+    (box :orientation "v" :space-evenly false :halign "start"
+      (label :class "weather-temp" :text "${weather.temp}°C")
+      (label :class "weather-desc" :text "${weather.desc}")
+    )
+  )
+)
+
+;; --- System Info ---
+(defwidget system_widget []
+  (box :class "widget-box system-widget" :orientation "h" :space-evenly false
+    (box :class "pfp" :style "background-image: url('/home/anurag/Pictures/Wallpapers/animecity.jpg');")
+    (box :orientation "v" :space-evenly true :halign "start"
+      (box :class "system-info-line" :orientation "h" :space-evenly false
+        (label :class "system-info-icon" :text "")
+        (label :text "Arch Linux")
+      )
+      (box :class "system-info-line" :orientation "h" :space-evenly false
+        (label :class "system-info-icon" :text "")
+        (label :text "i3wm")
+      )
+      (box :class "system-info-line" :orientation "h" :space-evenly false
+        (label :class "system-info-icon" :text "󰥔")
+        (label :text uptime)
+      )
+    )
+  )
+)
+
+;; --- Datetime ---
+(defwidget datetime_widget []
+  (box :class "widget-box datetime-widget" :orientation "v" :space-evenly false :valign "center"
+    (box :orientation "v" :space-evenly false :halign "center"
+      (label :class "time-hour" :text time_hour)
+      (label :class "time-sep" :text "--")
+      (label :class "time-min" :text time_min)
+    )
+    (label :class "date-str" :text date_str)
+  )
+)
+
+;; --- Calendar ---
+;; Corrected by removing the :day, :month, and :year attributes.
+;; The calendar widget handles this automatically.
+(defwidget calendar_widget []
+  (box :class "widget-box calendar-widget"
+    (calendar :class "cal")
+  )
+)
+
+;; --- Brightness Control ---
+(defwidget brightness_widget []
+  (box :class "widget-box slider-widget brightness-widget" :orientation "v" :space-evenly true :valign "center"
+    (scale :class "brightness-bar"
+           :value {brightness_percent}
+           :orientation "v"
+           :max 100
+           :min 0
+           :onchange "brightnessctl set {}%")
+    (label :class "brightness-icon" :text "")
+  )
+)
+
+;; --- Volume ---
+(defwidget volume_widget []
+  (box :class "widget-box slider-widget volume-widget" :orientation "v" :space-evenly true :valign "center"
+    (scale :class "volume-bar"
+           :value volume
+           :orientation "v"
+           :max 101
+           :min 0
+           :onchange "pamixer --set-volume {}")
+    (label :class "volume-icon" :text "󰕾")
+  )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Window Layout
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defwindow dashboard_window
+  :monitor 0
+  :geometry (geometry :x "0%"
+                      :y "20px"
+                      :width "800px"
+                      :height "450px"
+                      :anchor "top center")
+  :stacking "overlay"
+  :focusable true
+  :wm-ignore true
+  (box :class "dashboard-window" :orientation "v" :space-evenly false
+    (tabs)
+    ;; Top Row
+    (box :orientation "h" :spacing 20
+      (weather_widget)
+      (system_widget)
+    )
+    ;; Bottom Row
+    ;; --- The Definitive Layout Structure ---
+    (centerbox :orientation "h" :style "margin-top: 20px;"
+      ;; START section: Contains a single box that holds our widget group.
+      (box :halign "start"
+        (box :orientation "h" :spacing 15 :valign "end"
+          (datetime_widget)
+          (calendar_widget)
+          (box :orientation "h" :spacing 15 :valign "center"
+            (volume_widget)
+            (brightness_widget)
+          )
+        )
+      )
+      ;; CENTER section: Leave empty.
+      (box :class "center")
+      ;; END section: Leave empty.
+      (box :class "end")
+    )
+  )
+)

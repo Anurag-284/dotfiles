@@ -1,0 +1,9 @@
+#!/bin/bash
+# Checks if the sysfs file exists. If not, outputs 0.
+GPU_FILE="/sys/class/drm/card0/device/gpu_busy_percent"
+
+if [ -f "$GPU_FILE" ]; then
+    cat "$GPU_FILE"
+else
+    echo 0
+fi

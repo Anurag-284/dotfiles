@@ -1,0 +1,63 @@
+/**
+ * Rofi Theme: Simplified & Robust Wallpaper Selector
+ * This theme uses solid colors and guaranteed-to-work properties.
+ */
+
+@import "/home/anurag/.cache/wal/colors-rofi-dark.rasi"
+
+* {
+    background-color: @background;
+    text-color:       @foreground;
+    font:             "JetBrainsMono Nerd Font 11";
+}
+
+window {
+    location:         south;
+    width:            80%;
+    padding:          20px;
+    border-radius:    12px;
+    background-color: @background;
+    border:           2px;
+    border-color:     @color1;
+}
+
+mainbox {
+    children: [ listview ];
+    spacing:  15px;
+}
+
+listview {
+    layout:        horizontal;
+    columns:       6;
+    lines:         1;
+    spacing:       15px;
+    fixed-height:  false;
+    fixed-columns: true;
+}
+
+element {
+    orientation:   vertical;
+    padding:       10px;
+    border-radius: 10px;
+    spacing:       10px;
+}
+
+element-icon {
+    size:          128px;
+    border-radius: 8px;
+}
+
+element-text {
+    horizontal-align: 0.5;
+}
+
+element selected {
+    background-color: @color2;
+    text-color:       @background;
+    border-radius:    10px;
+}
+
+/* We will not use an input bar in this simple design */
+inputbar {
+    enabled: false;
+}
